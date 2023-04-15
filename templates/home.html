@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+    <title>Blockchain</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="container overflow-hidden">
+            <div class="row gx-5">
+                <div class="col">
+                    <div class="card" style="width: 18rem;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <table class="table">
+                                <tr>
+                                    <th colspan="2">
+                                        <h1>Transfer</h1>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>TX</th>
+                                    <td>
+                                        <select id="tx" class="form-select" aria-label="Default select example">
+                                            {% for address in accounts %}
+                                            <option value="{{ address.key + '___' + address.address }}">{{ address.address }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>RX</th>
+                                    <td>
+                                        <select id="rx" class="form-select" aria-label="Default select example">
+                                            {% for address in accounts %}
+                                            <option value="{{ address.key + '___' + address.address }}">{{ address.address }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Ether</th>
+                                    <td><input id="ether" class="from form-control" value="1"></input></td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-lg" onclick="trasfer()">
+                                            Transfer
+                                        </button>
+                                        <span id="status"></span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- ------------------------------------------------------------- -->
+                <div class="col">
+                    <!-- <div class="card" style="width: 18rem;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="card-img-top" alt="...">
+                        <div class="card-body"> -->
+                            <table class="table">
+                                <tr>
+                                    <th colspan="2">
+                                        <h1>Show balance</h1>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>Select wallet</th>
+                                    <td>
+                                        <select id="tx" class="form-select" aria-label="Default select example">
+                                            {% for address in accounts %}
+                                            <option value="{{ address.key + '___' + address.address }}">{{ address.address }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Balance</th>
+                                    <td><span id="balance"></span> ETH</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <button type="button" class="btn btn-primary btn-lg" onclick="showBalance()">Show balance</button>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                        <!-- </div>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+        <!-- ------------------------------------------------------------- -->
+    </div>
+</body>
+<script>
+    // load_wallet = () => {
+    //     let url = "https://127.0.0.1:5000/getaccounts";
+
+    //     fetch(url, {
+    //         method: "get"
+    //     })
+    //     .then((response) => response.json())
+    //     .then((data) => {
+    //         console.log(data);
+    //     })
+       
+        // fetch(url, {
+        //     method: "get"
+        // }).then(function (response) {
+        //         return response.json();
+        //     }).then(function (data) {
+        //         console.log(data);
+        //         let tx_sl = document.getElementById("tx");
+        //         let rx_sl = document.getElementById("rx");
+        //         let wallet = document.getElementById("wallet");
+
+        //         for (i in data) {
+        //             let option1 = document.createElement("option");
+        //             option1.value = data[i].key;
+        //             option1.text = data[i].address;
+        //             tx_sl.add(option1);
+
+        //             let option = document.createElement("option");
+        //             option.value = data[i].address;
+        //             option.text = data[i].address;
+        //             rx_sl.add(option);
+
+        //             let option2 = document.createElement("option");
+        //             option2.value = data[i].address;
+        //             option2.text = data[i].address;
+        //             wallet.add(option2);
+        //         }
+        //     });
+    // };
+    trasfer = () => {
+        var selTx = document.getElementById("tx");
+        var tx = selTx.options[selTx.selectedIndex].text;
+        let txKey = selTx.options[selTx.selectedIndex].value.split('___')[0];
+        let txAddress = selTx.options[selTx.selectedIndex].value.split('___')[1];
+
+        var selRx = document.getElementById("rx");
+        var rx = selRx.options[selRx.selectedIndex].text;
+        let rxKey = selRx.options[selRx.selectedIndex].value.split('___')[0];
+        let rxAddress = selRx.options[selRx.selectedIndex].value.split('___')[1];
+        console.log(rxKey, rxAddress)
+        console.log(txKey, txAddress)
+
+        let ether = document.getElementById("ether").value;
+        let data = {
+            tx: tx,
+            key: txKey,
+            rx: rxAddress,
+            ether: ether
+        };
+    console.log(JSON.stringify(data));
+    let url = "http://127.0.0.1:5000/transfer";
+try {
+    fetch(url, {
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+    .then(function (response) {
+        console.log(response.json())
+        return response.json();
+    })
+    .then(function (data) {
+        let status = document.getElementById("status");
+        status.innerHTML = data.status;
+        console.log(data);
+    });
+} catch (error) {
+    console.error(error);
+}
+    };
+
+
+    getWallet = () => {
+
+        var sel = document.getElementById("wallet");
+        var tx = sel.option[sel.selectdIndex].text;
+        let data = {
+            address: tx,
+        };
+        console.log(JSON.stringify(data));
+        let url = "https://127.0.0.1:5000/getbalance";
+        fetch(url, {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                let ether2 = document.getElementById("ether2");
+                ether2.innerHTML = data.status;
+                console.log(data);
+            });
+    };
+
+    function showBalance() {
+    let tx = document.getElementById("tx").value.split("___");
+    let key = tx[0];
+    let address = tx[1];
+
+    fetch("/getbalance", {
+        method: "POST",
+        body: JSON.stringify({ "address": address }),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            let balance = data.ether;
+            document.getElementById("balance").innerHTML = balance;
+        } else {
+            alert("Failed to get balance.");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+
+</script>
+
+</html>
